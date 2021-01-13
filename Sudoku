@@ -1,0 +1,109 @@
+#include<iostream>
+#include <cstdio>
+#include<math.h>
+using namespace std;
+#define High 30
+void Show(int sudoku[High][High], int size)
+{
+    for(int i=0;i<size;i++)
+    {
+        for(int j=0;j<size; j++)
+            cout<< sudoku[i][j];
+        cout<<endl;
+    }
+    cout<<"\n\n\n";
+}
+bool inspect(int sudoku[High][High], int size)
+{
+    int i,j;
+    for(i=0;i<size;i++)
+        for(j=0;j<size;j++)
+            if(!sudoku[i][j])
+                return false;
+    return true;
+}
+int userinput(int sudoku[High][High])
+{
+    int size = 9;
+    cout<<"Enter the Initial "<<'9'<<" X "<<'9'<<" Sudoku Board:"<<endl;
+    cout<<"Instruction: Enter 0 for blank"<<endl;
+    for(int i=0;i<size;i++)
+        for(int j=0;j<size; j++)
+            cin>>sudoku[i][j];
+    return size;
+}
+int working(int sudoku[High][High], int size, int a[], int r, int c)
+{
+    int n=0;
+    int i,j;
+    int s=(int)(sqrt(size));
+    int b[High+1]={0};
+    for(i=0; i<size; i++)
+        b[sudoku[r][i]]=1;
+    for(i=0; i<size; i++)
+        b[sudoku[i][c]]=1;
+    r=(r/s)*s, c=(c/s)*s;
+    for(i=r; i<r+s; i++)
+        for(j=c; j<c+s;j++)
+            b[sudoku[i][j]]=1;
+    for(i=1;i<=size; i++)
+        if(!b[i])
+            a[n++]=i;
+    return n;
+}
+void solve(int sudoku[High][High], int size, int &solution_num, bool &solved_flag, bool &enough)
+{
+    int i,j, a[High+1]={0}, n=0;
+    if(enough)
+        return;
+    if(inspect(sudoku, size))
+    {
+        if(!solved_flag)
+            cout<<"Sudoku Solved Successfully!"<<endl;
+        solved_flag = 1;
+        cout<<"\n\nSolution no. "<<(solution_num++)<<endl;
+        Show(sudoku, size);
+        char more;
+        cout<<"Do you want more solutions?"<<endl;
+        cout<<"Press 1 for 'YES', anything OTHERWISE:\t";
+        cin>>more;
+        cout<<"\n\n*\n\n";
+        if(more != '1')
+            enough = true;
+        return;
+    }
+    int break_flag = 0;
+    for(i=0;i<size;i++)
+    {
+        for(j=0;j<size;j++)
+            if(!sudoku[i][j])
+            {
+                break_flag = 1;
+                break;
+            }
+        if(break_flag)
+            break;
+    }
+    n = working(sudoku, size, a, i, j);
+    for(int l=0;l<n;l++)
+    {
+        sudoku[i][j]=a[l];
+        solve(sudoku, size, solution_num, solved_flag, enough);
+    }
+    sudoku[i][j]=0;
+}
+int main()
+{
+    int sudoku[High][High]={0};
+     int size;
+    size = userinput(sudoku);
+    int solution_num = 1;
+    bool solved_flag = 0;
+    bool enough = false;
+    cout<<"Finding Solutions!\n\n"<<endl;
+    solve(sudoku, size, solution_num, solved_flag, enough);
+    if(!solved_flag)
+        cout<<"Invalid Board!"<<endl;
+    cout<<"Exiting!\n\n"<<endl;
+    return 0;
+}
